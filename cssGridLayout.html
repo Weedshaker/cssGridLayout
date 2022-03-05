@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+  <title>cssGridLayoutJS</title>
+</head>
+
+<body>
+  <script rel="modulepreload" type="module">
+    import { ProxifyHook } from './node_modules/@weedshaker/proxifyjs/JavaScript/Classes/Helper/ProxifyHook.js'
+    import { InitBasic } from './node_modules/@weedshaker/proxifyjs/JavaScript/Classes/Controller/InitBasic.js'
+    import './node_modules/interactjs/dist/interact.js'
+
+    class Index {
+      constructor() {
+        const __ = new ProxifyHook(InitBasic).get()
+        const minSize = 100
+        const body = __(document.getElementsByTagName('body')[0])
+          .$css([
+            `{
+              background: GhostWhite; font-family: "Open Sans", sans-serif;
+              display: grid;
+              /*grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));*/
+              grid-auto-columns: minmax(${minSize}px, 1fr);
+              grid-auto-rows: minmax(${minSize}px, 1fr);
+              grid-auto-flow: dense;
+            }`,
+            `>span:empty{
+              min-height: ${minSize}px;
+              min-width: ${minSize}px;
+              opacity: 0.5;
+            }`,
+            `>span:nth-of-type(1){
+              background: lightblue;
+            }`
+            ,
+            `>span:nth-of-type(2){
+              background: lightgreen;
+            }`
+            ,
+            `>span:nth-of-type(3){
+              background: brown;
+            }`
+            ,
+            `>span:nth-of-type(4){
+              background: lightpink;
+            }`
+            ,
+            `>span:nth-of-type(5){
+              background: yellow;
+            }`
+            ,
+            `>span:nth-of-type(6){
+              background: lightgray;
+            }`
+            ,
+            `>span:nth-of-type(7){
+              background: wheat;
+            }`
+          ])
+          .$appendChildren([
+            __('span').$func(span => span.classList.add('draggable')),
+            __('span').$func(span => span.classList.add('draggable')),
+            __('span').$func(span => span.classList.add('draggable')),
+            __('span').$func(span => span.classList.add('draggable')),
+            __('span').$func(span => span.classList.add('draggable')),
+            __('span').$func(span => span.classList.add('draggable')),
+            __('span').$func(span => span.classList.add('draggable'))
+          ])
+          .$func(grid => {
+            const draggable = 'draggable'
+            let dragPoint = [0, 0] // [row, column] started at first click within the target cell, to figure at which cell within the target got clicked, since this can span multiple cells
+            let initRect
+            interact(`.${draggable}`, { context: grid.__raw__ })
+              .draggable({
+                autoScroll: true,
+                onstart: (event) => {
+                  __(event.target)
+                    .$func(target => {
+                      dragPoint = this.calcPoint(target, target, [event.pageX, event.pageY], 'floor')
+                    })
+                },
+                onmove: (event) => {
+                  __(event.target)
+                    .$getStyle((target, prop, style) => {
+                      const [str, x, y] = style.transform.match(/.*?\(([-0-9]*)[^0-9-]*([-0-9]*)/) || ['', 0, 0]
+                      style.$setTransform(`translate(${Math.round(Number(x) + event.dx)}px, ${Math.round(Number(y) + event.dy)}px)`)
+                    })
+                },
+                onend: (event) => {
+                  __(event.target)
+                    .$getStyle((target, prop, style) => {
+                      // reset translate, otherwise target coordinates will be off
+                      style.$setTransform('none')
+                      const dropPoint = this.calcPoint(grid, target, [event.pageX, event.pageY], 'ceil')
+                      style
+                        .$setGridRowStart(dropPoint[1] - dragPoint[1] > 0 ? dropPoint[1] - dragPoint[1] : 1)
+                        .$setGridColumnStart(dropPoint[0] - dragPoint[0] > 0 ? dropPoint[0] - dragPoint[0] : 1)
+                    })
+                }
+              })
+              .resizable({
+                edges: { left: false, right: true, bottom: true, top: false },
+                restrictSize: {
+                  min: { width: minSize, height: minSize },
+                },
+                inertia: true,
+              })
+              .on('resizestart', (event) => {
+                __(event.target)
+                  .$getStyle((target, prop, style) => {
+                    initRect = target.getBoundingClientRect()
+                    style.$setTransformOrigin(`top left`)
+                  })
+              })
+              .on('resizemove', (event) => {
+                __(event.target)
+                  .$getStyle((target, prop, style) => {
+                    style.$setTransform(`scale(${parseFloat(event.rect.width / initRect.width).toFixed(3)}, ${parseFloat(event.rect.height / initRect.height).toFixed(3)})`)
+                  })
+              })
+              .on('resizeend', (event) => {
+                __(event.target)
+                  .$getStyle((target, prop, style) => {
+                    const targetRect = target.getBoundingClientRect()
+                    const cellRect = this.getCellRect(target, initRect)
+                    style
+                      .$setTransform('none')
+                      .$setGridRowEnd(`span ${Math.round(targetRect.height / cellRect.height)}`)
+                      .$setGridColumnEnd(`span ${Math.round(targetRect.width / cellRect.width)}`)
+                  })
+              })
+          })
+      }
+      // calculates the bounding rectangle of one cell within the grid (takes in account when an item spans multiple cells)
+      getCellRect(cell, rect = undefined) {
+        const regex = /span\s*/
+        const cellRect = rect ? rect.toJSON() : cell.getBoundingClientRect().toJSON()
+        cell.style
+          .$getGridRowEnd((target, prop, end = '1') => {
+            const rows = Number(end.replace(regex, '')) || 1
+            cellRect.bottom = (cellRect.bottom - cellRect.top) / rows + cellRect.top
+            cellRect.height = cellRect.height / rows
+          })
+          .$getGridColumnEnd((target, prop, end = '1') => {
+            const columns = Number(end.replace(regex, '')) || 1
+            cellRect.right = (cellRect.right - cellRect.left) / columns + cellRect.left
+            cellRect.width = cellRect.width / columns
+          })
+        return cellRect
+      }
+      // calculates the point of [column, row] within the parent
+      calcPoint(parent, cell, cors, mathFunc = 'ceil') {
+        const parentRect = parent.getBoundingClientRect()
+        const cellRect = this.getCellRect(cell)
+        const [x, y] = [cors[0] - parentRect.left, cors[1] - parentRect.top]
+        return [Math[mathFunc](x / cellRect.width), Math[mathFunc](y / cellRect.height)]
+      }
+    }
+    new Index()
+  </script>
+</body>
+
+</html>
