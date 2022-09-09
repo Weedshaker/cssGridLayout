@@ -4,3 +4,6 @@
 [submodule "JavaScript/Weedshaker/ProxifyJS"]
 	path = JavaScript/Weedshaker/ProxifyJS
 	url = https://github.com/Weedshaker/ProxifyJS.git
+[submodule "JavaScript/Weedshaker/event-driven-web-components-prototypes"]
+	path = JavaScript/Weedshaker/event-driven-web-components-prototypes
+	url = https://github.com/Weedshaker/event-driven-web-components-prototypes.git
