@@ -1,0 +1,21 @@
+{
+  "name": "cssgridlayoutjs",
+  "version": "0.0.2",
+  "description": "Drag & Drop CSS Grid Layout Creator.",
+  "main": "index.html",
+  "scripts": {
+    "test": "standard --fix"
+  },
+  "keywords": [
+    "Css",
+    "Grid",
+    "Layout",
+    "Drag&Drop",
+    "Creator"
+  ],
+  "author": "Silvan Strübi",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "standard": "*"
+  }
+}
