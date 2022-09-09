@@ -10,7 +10,7 @@
 import { ProxifyHook } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Helper/ProxifyHook.js'
 import { Proxify } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Handler/Proxify.js'
 import { Chain } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Traps/Misc/Chain.js'
-import 'https://cdn.jsdelivr.net/npm/interactjs@*/dist/interact.js'
+import '../../../interact.js' //'https://cdn.jsdelivr.net/npm/interactjs@*/dist/interact.js'
 
 import Drag from '../../Model/Drag.js'
 

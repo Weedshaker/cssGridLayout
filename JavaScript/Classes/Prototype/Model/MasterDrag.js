@@ -105,7 +105,7 @@ export default class MasterDrag {
                     __(event.target)
                         .$getStyle((cell, prop, style) => {
                             const zIndex = Number(style.$getZIndex())
-                            style.$setZIndex(!zIndex || zIndex === 1 ? defaultZIndex - 1 : zIndex - 1)
+                            style.$setZIndex(!zIndex || zIndex <= 1 ? 100 - 1 : zIndex - 1)
                         })
                 })
         })
