@@ -43,13 +43,30 @@
               grid-gap: unset;
               overflow: scroll;
             }`,
-            `>*{
+            `>*:not(script):not(style):not(.overlay){
               background-color: rgba(166, 211, 225, .6);
               box-shadow: -1px -1px rgba(9, 9, 246, .3) inset;
+              display: grid;
+              grid-template-columns: 1fr 2px;
+              grid-template-rows: 1fr 2px;
               z-index: ${defaultZIndex};
+              touch-action: none;
+              box-sizing: border-box;
             }`,
-            `>*.dragged{
+            `>*:not(script):not(style):not(.overlay).dragged{
               background-color: rgba(218, 248, 218, .6);
+            }`,
+            `>:before{
+              content: '';
+              background-color: blue;
+              grid-area: 1 / 2 / span 2 / span 1;
+              cursor: col-resize;
+            }`,
+            `>*:after{
+              content: '';
+              background-color: blue;
+              grid-area: 2 / 1 / span 1 / span 2;
+              cursor: row-resize
             }`
           ], 'grid')
           .$appendChildren([

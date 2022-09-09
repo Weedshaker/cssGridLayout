@@ -148,6 +148,7 @@ export default class MasterDrag {
         const additional = 3
         return body
             .appendChild(__('section'))
+            .$getClassList((receiver, prop, classList) => classList.add('overlay'))
             .$setStyle(`
               background: none;
               box-shadow: none;
