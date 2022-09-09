@@ -1,3 +1,6 @@
-[submodule "JavaScript/interactjs"]
-	path = JavaScript/interactjs
-	url = https://github.com/taye/interact.js.git
+[submodule "JavaScript/Weedshaker/interact.js"]
+	path = JavaScript/Weedshaker/interact.js
+	url = https://github.com/Weedshaker/interact.js.git
+[submodule "JavaScript/Weedshaker/ProxifyJS"]
+	path = JavaScript/Weedshaker/ProxifyJS
+	url = https://github.com/Weedshaker/ProxifyJS.git
