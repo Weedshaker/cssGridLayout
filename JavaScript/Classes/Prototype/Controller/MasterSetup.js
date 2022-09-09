@@ -7,10 +7,10 @@
  *  All rights reserved
  ***************************************************************/
 
-import { ProxifyHook } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Helper/ProxifyHook.js'
-import { Proxify } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Handler/Proxify.js'
-import { Chain } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Traps/Misc/Chain.js'
-import '../../../interactjs/dist/interact.js' //'https://cdn.jsdelivr.net/npm/interactjs@*/dist/interact.js'
+import { ProxifyHook } from '../../../Weedshaker/ProxifyJS/JavaScript/Classes/Helper/ProxifyHook.js'
+import { Proxify } from '../../../Weedshaker/ProxifyJS/JavaScript/Classes/Handler/Proxify.js'
+import { Chain } from '../../../Weedshaker/ProxifyJS/JavaScript/Classes/Traps/Misc/Chain.js'
+import '../../../Weedshaker/interact.js/dist/interact.js' //'https://cdn.jsdelivr.net/npm/interactjs@*/dist/interact.js'
 
 import Drag from '../../Model/Drag.js'
 
