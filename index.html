@@ -7,7 +7,20 @@
   <title>cssGridLayoutJS</title>
 </head>
 <body>
-  <o-interactive-grid min-size=10></o-interactive-grid>
+  <o-interactive-grid min-size=50>
+    <div style="grid-row-start: 1; grid-column-start: 1;"></div>
+    <div style="grid-row-start: 2; grid-column-start: 2;"></div>
+    <div style="grid-row-start: 3; grid-column-start: 3;"></div>
+    <div style="grid-row-start: 4; grid-column-start: 4;"></div>
+    <div style="grid-row-start: 5; grid-column-start: 5;"></div>
+    <div style="grid-row-start: 6; grid-column-start: 6;"></div>
+    <div style="grid-row-start: 7; grid-column-start: 7;"></div>
+    <div style="grid-row-start: 8; grid-column-start: 8;"></div>
+    <div style="grid-row-start: 9; grid-column-start: 9;"></div>
+    <div style="grid-row-start: 10; grid-column-start: 10;"></div>
+    <div style="grid-row-start: 11; grid-column-start: 11;"></div>
+    <div style="grid-row-start: 12; grid-column-start: 12;"></div>
+  </o-interactive-grid>
   <script rel="modulepreload" type="module">
     import('./JavaScript/Components/InteractiveGrid.js').then(module => {
       if (!customElements.get('o-interactive-grid')) customElements.define('o-interactive-grid', module.default)

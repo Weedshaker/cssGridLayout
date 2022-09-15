@@ -17,7 +17,7 @@ import { Shadow } from '../Weedshaker/event-driven-web-components-prototypes/src
  */
 export default class InteractiveGrid extends Shadow() {
   static get observedAttributes () {
-    return ['active']
+    return ['is-interactive']
   }
 
   constructor (...args) {
@@ -36,8 +36,11 @@ export default class InteractiveGrid extends Shadow() {
   }
 
   attributeChangedCallback (name, oldValue, newValue) {
-    if (name === 'active') {
-      console.log('active');
+    if (name === 'is-interactive') {
+      console.log('is-interactive');
+      // TODO: Listen to event and switch this attribute
+      // this.start()
+      // this.stop()
     }
   }
 
@@ -70,27 +73,28 @@ export default class InteractiveGrid extends Shadow() {
         background: GhostWhite;
         border: 1px solid gray;
         display: grid;
-        grid-auto-columns: minmax(${this.minSize}px, 1fr);
+        grid-auto-columns: 1fr;
         grid-auto-flow: dense;
         grid-auto-rows: minmax(${this.minSize}px, 1fr);
         grid-gap: unset;
         overflow: visible;
+        width: 100%;
       }
       :host > section > * {
-        background-color: rgba(166, 211, 225, .6);
+        background-color: rgba(166, 211, 225, .4);
         box-shadow: -3px -3px rgba(9, 9, 246, .3) inset;
         box-sizing: border-box;
         touch-action: none;
         z-index: ${this.defaultZIndex};
       }
       :host > section > *.dragged {
-        background-color: rgba(218, 248, 218, .6);
+        background-color: rgba(218, 248, 218, .4);
       }
       :host > section > *.resized {
-        background-color: rgba(241, 213, 213, .6);
+        background-color: rgba(241, 213, 213, .4);
       }
       :host > section > *.resized.dragged {
-        background-color: rgba(242, 248, 218, .6);
+        background-color: rgba(242, 248, 218, .4);
       }
       :host > section > * * {
         pointer-events: none;
@@ -105,18 +109,13 @@ export default class InteractiveGrid extends Shadow() {
    */
   renderHTML () {
     this.section = document.createElement('section')
-    this.section.innerHTML = /* html */`
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    `
+    Array.from(this.root.children).forEach(node => {
+      if (!node.getAttribute('slot')) this.section.appendChild(node)
+    })
     this.loadDependency().then(interact => {
       this.html = this.section
       this.Drag = new Drag(new ProxifyHook(Chain(Proxify())).get(), interact, undefined, this.minSize)
-      this.Drag.start(this.section)
+      this.start() // TODO: Start on event or attribute changed is-interactive
     })
   }
 
@@ -139,4 +138,10 @@ export default class InteractiveGrid extends Shadow() {
       }
     }))
   }
+
+  start () {
+    this.Drag.start(this.section)
+  }
+
+  // TODO: add stop()
 }

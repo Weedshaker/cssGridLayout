@@ -2,7 +2,7 @@
  *
  *  Copyright notice
  *
- *  (c) 2018 Silvan Strübi <silvan.struebi@gmail.com>
+ *  (c) 2018 Silvan Strübi <weedshaker@gmail.com>
  *
  *  All rights reserved
  ***************************************************************/
@@ -28,6 +28,7 @@ export default class MasterDrag {
           autoScroll: true,
           inertia: true, // Inertia allows drag and resize actions to continue after the user releases the pointer at a fast enough speed. http://interactjs.io/docs/inertia/
           onstart: (event) => {
+            this.setBodyScrollFix()
             __(event.target)
               .$getStyle((cell, prop, style) => {
                 style
@@ -56,6 +57,7 @@ export default class MasterDrag {
                   .$setTransform(transform)
                 cell.classList.add('dragged')
                 overlayGrid.remove()
+                this.removeBodyScrollFix()
               })
           }
         })
@@ -68,6 +70,7 @@ export default class MasterDrag {
           }
         })
         .on('resizestart', (event) => {
+          this.setBodyScrollFix()
           __(event.target)
             .$getStyle((cell, prop, style) => {
               style
@@ -97,6 +100,7 @@ export default class MasterDrag {
               cell.classList.add('resized')
               overlayGrid.remove()
             })
+          this.removeBodyScrollFix()
         })
         .on('doubletap', (event) => {
           // zIndex swapping
@@ -179,5 +183,13 @@ export default class MasterDrag {
           }
         }
       })
+  }
+
+  setBodyScrollFix () {
+    document.body.setAttribute('style', `${document.body.getAttribute('style') || ''}overflow: scroll;`) // avoid popping in of scroll bar
+  }
+
+  removeBodyScrollFix () {
+    document.body.setAttribute('style', (document.body.getAttribute('style') || '').replace('overflow: scroll;', '')) // avoid popping in of scroll bar
   }
 }
