@@ -19,8 +19,8 @@ export default class InteractiveGrid extends Shadow() {
   constructor (...args) {
     super(...args)
 
-    this.minSize = 100
-    this.defaultZIndex = 100
+    this.minSize = Number(this.getAttribute('min-size')) || 100
+    this.defaultZIndex = Number(this.getAttribute('default-z-index')) || 100
   }
 
   connectedCallback () {
@@ -105,7 +105,7 @@ export default class InteractiveGrid extends Shadow() {
     `
     this.loadDependency().then(interact => {
       this.html = this.section
-      this.Drag = new Drag(new ProxifyHook(Chain(Proxify())).get(), interact)
+      this.Drag = new Drag(new ProxifyHook(Chain(Proxify())).get(), interact, undefined, this.minSize)
       this.Drag.start(this.section)
     })
   }

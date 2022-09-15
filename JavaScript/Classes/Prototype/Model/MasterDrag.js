@@ -8,19 +8,15 @@
  ***************************************************************/
 
 export default class MasterDrag {
-  constructor (ProxifyHook, interact) {
+  constructor (ProxifyHook, interact, body = null, minSize = 100) {
     this.__ = ProxifyHook
     this.interact = interact
+    this.body = body
+    this.minSize = minSize
   }
 
-  start (element) {
-    const __ = this.__
-
-    /* temp */
-    const minSize = 100
-    const body = __(document.getElementsByTagName('body')[0])
-    /* /temp */
-
+  start (element, body = this.body, minSize = this.minSize, __ = this.__) {
+    body = __(body || document.body)
     __(element).$func(grid => {
       let transform // keep last transform value on style
       let dragPoint = [0, 0] // [row, column] started at first click within the target cell, to figure at which cell within the target got clicked, since this can span multiple cells
@@ -150,7 +146,7 @@ export default class MasterDrag {
     const cellRect = this.getCellRect(cell)
     const rows = Math.round(gridRect.height / cellRect.height)
     const columns = Math.round(gridRect.width / cellRect.width)
-    const additional = 3
+    const additional = 5
     return body
       .appendChild(__('section'))
       .$getClassList((receiver, prop, classList) => classList.add('overlay'))

@@ -7,7 +7,7 @@
   <title>cssGridLayoutJS</title>
 </head>
 <body>
-  <o-interactive-grid></o-interactive-grid>
+  <o-interactive-grid min-size=10></o-interactive-grid>
   <script rel="modulepreload" type="module">
     import('./JavaScript/Components/InteractiveGrid.js').then(module => {
       if (!customElements.get('o-interactive-grid')) customElements.define('o-interactive-grid', module.default)
