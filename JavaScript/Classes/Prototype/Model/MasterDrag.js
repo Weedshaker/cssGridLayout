@@ -81,6 +81,7 @@ export default class MasterDrag {
         .on('resizemove', (event) => {
           __(event.target)
             .$getStyle((cell, prop, style) => {
+              // @ts-ignore
               style.$setTransform(`scale(${parseFloat(event.rect.width / initRect.width).toFixed(3)}, ${parseFloat(event.rect.height / initRect.height).toFixed(3)})`)
             })
         })

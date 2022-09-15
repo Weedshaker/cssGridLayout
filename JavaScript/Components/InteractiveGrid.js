@@ -16,6 +16,10 @@ import { Shadow } from '../Weedshaker/event-driven-web-components-prototypes/src
  * @type {CustomElementConstructor}
  */
 export default class InteractiveGrid extends Shadow() {
+  static get observedAttributes () {
+    return ['active']
+  }
+
   constructor (...args) {
     super(...args)
 
@@ -29,6 +33,12 @@ export default class InteractiveGrid extends Shadow() {
   }
 
   disconnectedCallback () {
+  }
+
+  attributeChangedCallback (name, oldValue, newValue) {
+    if (name === 'active') {
+      console.log('active');
+    }
   }
 
   /**
@@ -111,7 +121,8 @@ export default class InteractiveGrid extends Shadow() {
   }
 
   /**
-   * fetch dependency
+   * fetch dependencies which typically are not suitable for submodule aka. local no build, no stack delivery
+   * taye/interact.js has no dist and may wont in future, which makes it require npm or jsdelivery except the full https://github.com/taye/interact.js/pull/980 is accepted. Until then the chrome fixed version is from the fork https://github.com/Weedshaker/interact.js
    *
    * @returns {Promise<{components: any}>}
    */
@@ -123,6 +134,7 @@ export default class InteractiveGrid extends Shadow() {
         // @ts-ignore
         resolve(self.interact)
       } else {
+        // @ts-ignore
         import('../Weedshaker/interact.js/dist/interact.js').then(module => resolve(self.interact))
       }
     }))
