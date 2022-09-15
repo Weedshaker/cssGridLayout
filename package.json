@@ -4,7 +4,7 @@
   "description": "Drag & Drop CSS Grid Layout Creator.",
   "main": "index.html",
   "scripts": {
-    "test": "standard --fix"
+    "fix": "standard --fix"
   },
   "keywords": [
     "Css",
@@ -17,5 +17,11 @@
   "license": "GPL-3.0-or-later",
   "devDependencies": {
     "standard": "*"
+  },
+  "standard": {
+    "ignore": [
+      "/JavaScript/Weedshaker/",
+      "/node_modules"
+    ]
   }
 }

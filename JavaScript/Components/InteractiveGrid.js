@@ -1,13 +1,11 @@
 // @ts-check
-import { Shadow } from '../Weedshaker/event-driven-web-components-prototypes/src/Shadow.js'
+import Drag from '../Classes/Model/Drag.js'
 import { ProxifyHook } from '../Weedshaker/ProxifyJS/JavaScript/Classes/Helper/ProxifyHook.js'
 import { Proxify } from '../Weedshaker/ProxifyJS/JavaScript/Classes/Handler/Proxify.js'
 import { Chain } from '../Weedshaker/ProxifyJS/JavaScript/Classes/Traps/Misc/Chain.js'
-import Drag from '../Classes/Model/Drag.js'
+import { Shadow } from '../Weedshaker/event-driven-web-components-prototypes/src/Shadow.js'
 
-/* global location */
 /* global self */
-/* global CustomEvent */
 
 /**
  * Defines a InteractiveGrid as a WebComponent wrapper around interact.js
@@ -48,12 +46,12 @@ export default class InteractiveGrid extends Shadow() {
    * @return {boolean}
    */
   shouldComponentRenderHTML () {
-    return !this.main
+    return !this.section
   }
 
   /**
    * renders css
-   * 
+   *
    * @return {void}
    */
   renderCSS () {
@@ -122,7 +120,8 @@ export default class InteractiveGrid extends Shadow() {
       const isLoaded = () => 'interact' in self === true
       // needs markdown
       if (isLoaded()) {
-        resolve(self.interact) // eslint-disable-line
+        // @ts-ignore
+        resolve(self.interact)
       } else {
         import('../Weedshaker/interact.js/dist/interact.js').then(module => resolve(self.interact))
       }
