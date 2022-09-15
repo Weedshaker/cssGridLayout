@@ -20,7 +20,7 @@ export default class MasterDrag {
         const body = __(document.getElementsByTagName('body')[0])
         /* /temp */
 
-        element.$func(grid => {
+        __(element).$func(grid => {
             let transform // keep last transform value on style
             let dragPoint = [0, 0] // [row, column] started at first click within the target cell, to figure at which cell within the target got clicked, since this can span multiple cells
             let initRect // resizing initial rect

@@ -1,77 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>cssGridLayoutJS</title>
 </head>
-
 <body>
+  <o-interactive-grid></o-interactive-grid>
   <script rel="modulepreload" type="module">
-    import Setup from './JavaScript/Classes/Controller/Setup.js'
-
-    /* temp */
-    import { ProxifyHook } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Helper/ProxifyHook.js'
-      import { Proxify } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Handler/Proxify.js'
-      import { Chain } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Traps/Misc/Chain.js'
-      import { Css } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Traps/Dom/Css.js'
-      import { Html } from 'https://cdn.jsdelivr.net/npm/@weedshaker/proxifyjs/JavaScript/Classes/Traps/Dom/Html.js'
-    /* /temp */
-
-    class Index {
-      constructor() {
-        this.interact = new Setup()
-
-        /* temp */
-        const __ = new ProxifyHook(Html(Css(Chain(Proxify())))).get()
-        const minSize = 100
-        const defaultZIndex = 100
-        // body is required and css can be reset after detaching
-        const body = __(document.getElementsByTagName('body')[0])
-          .$css(`{
-            overflow: scroll;
-          }`, 'body')
-          .$css([
-            `{
-              background: GhostWhite;
-              display: grid;
-              grid-auto-columns: minmax(${minSize}px, 1fr);
-              grid-auto-flow: dense;
-              grid-auto-rows: minmax(${minSize}px, 1fr);
-              grid-gap: unset;
-              overflow: scroll;
-            }`,
-            `>*{
-              background-color: rgba(166, 211, 225, .6);
-              box-shadow: -3px -3px rgba(9, 9, 246, .3) inset;
-              z-index: ${defaultZIndex};
-              touch-action: none;
-              box-sizing: border-box;
-            }`,
-            `>*.dragged{
-              background-color: rgba(218, 248, 218, .6);
-            }`,
-            `>* *{
-              pointer-events: none;
-            }`,
-          ], 'grid')
-          .$appendChildren([
-            __('div'),
-            __('div'),
-            __('div'),
-            __('div'),
-            __('div'),
-            __('div'),
-            __('div')
-          ])
-          /* /temp */
-
-          this.interact.start('drag', body)
-      }
-    }
-    new Index()
+    import('./JavaScript/Components/InteractiveGrid.js').then(module => {
+      if (!customElements.get('o-interactive-grid')) customElements.define('o-interactive-grid', module.default)
+    })
   </script>
 </body>
 
