@@ -1,8 +1,4 @@
 // @ts-check
-import Drag from '../Classes/Model/Drag.js'
-import { ProxifyHook } from '../Weedshaker/ProxifyJS/JavaScript/Classes/Helper/ProxifyHook.js'
-import { Proxify } from '../Weedshaker/ProxifyJS/JavaScript/Classes/Handler/Proxify.js'
-import { Chain } from '../Weedshaker/ProxifyJS/JavaScript/Classes/Traps/Misc/Chain.js'
 import { Shadow } from '../Weedshaker/event-driven-web-components-prototypes/src/Shadow.js'
 
 /* global self */
@@ -23,24 +19,32 @@ export default class InteractiveGrid extends Shadow() {
   constructor (...args) {
     super(...args)
 
-    this.minSize = Number(this.getAttribute('min-size')) || 100
+    this.minWidth = Number(this.getAttribute('min-width')) || 10
+    this.minHeight = Number(this.getAttribute('min-height')) || 100
     this.defaultZIndex = Number(this.getAttribute('default-z-index')) || 100
+
+    this.interactPromise = new Promise(resolve => (this.interactResolve = resolve))
+    this.wasInteractive = this.hasAttribute('is-interactive')
   }
 
   connectedCallback () {
     if (this.shouldComponentRenderCSS()) this.renderCSS()
     if (this.shouldComponentRenderHTML()) this.renderHTML()
+    if (this.wasInteractive && !this.hasAttribute('is-interactive')) this.setAttribute('is-interactive', '')
   }
 
   disconnectedCallback () {
+    this.wasInteractive = this.hasAttribute('is-interactive')
+    if (this.wasInteractive) this.removeAttribute('is-interactive')
   }
 
   attributeChangedCallback (name, oldValue, newValue) {
     if (name === 'is-interactive') {
-      console.log('is-interactive');
-      // TODO: Listen to event and switch this attribute
-      // this.start()
-      // this.stop()
+      if (this.hasAttribute('is-interactive')) {
+        this.start()
+      } else {
+        this.stop()
+      }
     }
   }
 
@@ -73,9 +77,9 @@ export default class InteractiveGrid extends Shadow() {
         background: GhostWhite;
         border: 1px solid gray;
         display: grid;
-        grid-auto-columns: 1fr;
+        grid-auto-columns: 1fr; /* don't use this.minWidth, since the width is automatic to max 100vw by grids default behavior */
         grid-auto-flow: dense;
-        grid-auto-rows: minmax(${this.minSize}px, 1fr);
+        grid-auto-rows: minmax(${this.minHeight}px, 1fr);
         grid-gap: unset;
         overflow: visible;
         width: 100%;
@@ -112,36 +116,49 @@ export default class InteractiveGrid extends Shadow() {
     Array.from(this.root.children).forEach(node => {
       if (!node.getAttribute('slot')) this.section.appendChild(node)
     })
-    this.loadDependency().then(interact => {
-      this.html = this.section
-      this.Drag = new Drag(new ProxifyHook(Chain(Proxify())).get(), interact, undefined, this.minSize)
-      this.start() // TODO: Start on event or attribute changed is-interactive
-    })
+    this.html = this.section
+  }
+
+  initInteract () {
+    this.loadDependencies().then(([Interact, ProxifyHook, Chain, Proxify, interact]) => this.interactResolve(new Interact(new ProxifyHook(Chain(Proxify())).get(), interact, undefined, this.minWidth, this.minHeight)))
+    this.initInteract = () => {}
   }
 
   /**
-   * fetch dependencies which typically are not suitable for submodule aka. local no build, no stack delivery
-   * taye/interact.js has no dist and may wont in future, which makes it require npm or jsdelivery except the full https://github.com/taye/interact.js/pull/980 is accepted. Until then the chrome fixed version is from the fork https://github.com/Weedshaker/interact.js
+   * load the dependencies once it starts
    *
-   * @returns {Promise<{components: any}>}
+   * @returns {Promise<any[]>}
    */
-  loadDependency () {
-    return this.dependencyPromise || (this.dependencyPromise = new Promise(resolve => {
-      const isLoaded = () => 'interact' in self === true
-      // needs markdown
-      if (isLoaded()) {
-        // @ts-ignore
-        resolve(self.interact)
-      } else {
-        // @ts-ignore
-        import('../Weedshaker/interact.js/dist/interact.js').then(module => resolve(self.interact))
-      }
-    }))
+  loadDependencies () {
+    return this.dependenciesPromise || (this.dependenciesPromise = Promise.all(
+      [
+        '../Classes/Model/Interact.js', 
+        '../Weedshaker/ProxifyJS/JavaScript/Classes/Helper/ProxifyHook.js',
+        '../Weedshaker/ProxifyJS/JavaScript/Classes/Traps/Misc/Chain.js',
+        '../Weedshaker/ProxifyJS/JavaScript/Classes/Handler/Proxify.js',
+        '../Weedshaker/interact.js/dist/interact.js'
+      ].map(href => {
+        const name = href.match(/(.*\/)(.*)\..*$/)[2]
+        if (name in self === true) return self[name]
+        return import(href).then(module => {
+          if (name in self === true) return self[name]
+          if (module[name]) return module[name]
+          return module.default
+        })
+      })
+    ))
   }
 
   start () {
-    this.Drag.start(this.section)
+    if (this._isInteractive) return
+    this._isInteractive = true
+    this.initInteract() // first start initialize, the function unhooks itself { once: true }
+    this.interactPromise.then(Interact => Interact.start(this.section))
   }
 
-  // TODO: add stop()
+  stop () {
+    if (!this._isInteractive) return
+    this.interactPromise.then(Interact => Interact.stop(this.section))
+    this._isInteractive = false
+  }
 }

@@ -2,11 +2,11 @@
  *
  *  Copyright notice
  *
- *  (c) 2018 Silvan Strübi <silvan.struebi@gmail.com>
+ *  (c) 2018 Silvan Strübi <weedshaker@gmail.com>
  *
  *  All rights reserved
  ***************************************************************/
 
-import MasterDrag from '../Prototype/Model/MasterDrag.js'
+import MasterInteract from '../Prototype/Model/MasterInteract.js'
 
-export default class Drag extends MasterDrag {}
+export default class Interact extends MasterInteract {}

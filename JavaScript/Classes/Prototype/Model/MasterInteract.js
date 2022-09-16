@@ -7,15 +7,17 @@
  *  All rights reserved
  ***************************************************************/
 
-export default class MasterDrag {
-  constructor (ProxifyHook, interact, body = null, minSize = 100) {
+export default class MasterInteract {
+  constructor (ProxifyHook, interact, body = null, minWidth = 10, minHeight = 100) {
     this.__ = ProxifyHook
     this.interact = interact
     this.body = body
-    this.minSize = minSize
+    this.minWidth = minWidth
+    this.minHeight = minHeight
   }
 
-  start (element, body = this.body, minSize = this.minSize, __ = this.__) {
+  start (element, body = this.body, minWidth = this.minWidth, minHeight = this.minHeight, __ = this.__) {
+    this.setBodyScrollFix()
     body = __(body || document.body)
     __(element).$func(grid => {
       let transform // keep last transform value on style
@@ -28,7 +30,6 @@ export default class MasterDrag {
           autoScroll: true,
           inertia: true, // Inertia allows drag and resize actions to continue after the user releases the pointer at a fast enough speed. http://interactjs.io/docs/inertia/
           onstart: (event) => {
-            this.setBodyScrollFix()
             __(event.target)
               .$getStyle((cell, prop, style) => {
                 style
@@ -57,7 +58,6 @@ export default class MasterDrag {
                   .$setTransform(transform)
                 cell.classList.add('dragged')
                 overlayGrid.remove()
-                this.removeBodyScrollFix()
               })
           }
         })
@@ -66,11 +66,10 @@ export default class MasterDrag {
           edges: { left: false, right: true, bottom: true, top: false },
           inertia: true, // Inertia allows drag and resize actions to continue after the user releases the pointer at a fast enough speed. http://interactjs.io/docs/inertia/
           restrictSize: {
-            min: { width: minSize, height: minSize }
+            min: { width: minWidth, height: minHeight }
           }
         })
         .on('resizestart', (event) => {
-          this.setBodyScrollFix()
           __(event.target)
             .$getStyle((cell, prop, style) => {
               style
@@ -100,7 +99,6 @@ export default class MasterDrag {
               cell.classList.add('resized')
               overlayGrid.remove()
             })
-          this.removeBodyScrollFix()
         })
         .on('doubletap', (event) => {
           // zIndex swapping
@@ -111,6 +109,21 @@ export default class MasterDrag {
             })
         })
     })
+  }
+
+  stop (element, __ = this.__) {
+    __(element).$func(grid => {
+      const selector = Array.from(grid.children).reduce((acc, child) => child.tagName && !acc.includes(child.tagName) ? acc.concat([child.tagName]) : acc, []).join(',') || '*'
+      this.interact(selector, { context: grid.__raw__ })
+        .off('draggablestart')
+        .off('draggablemove')
+        .off('draggableend')
+        .off('resizestart')
+        .off('resizemove')
+        .off('resizeend')  
+        .off('doubletap')
+    })
+    this.removeBodyScrollFix()
   }
 
   // calculates the point of [column, row] within the grid
