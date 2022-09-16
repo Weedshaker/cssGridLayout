@@ -34,17 +34,17 @@ export default class InteractiveGrid extends Shadow() {
     }
     this.addCellEventListener = event => {
       let child, wasInteractive
-      if (wasInteractive = this._isInteractive) this.stop()
-      this.section.appendChild((child = event.detail && event.detail.cell || document.createElement('div')))
+      if ((wasInteractive = this._isInteractive)) this.stop()
+      this.section.appendChild((child = event.detail && (event.detail.cell || document.createElement('div'))))
       if (wasInteractive) this.start()
       if (event.detail && event.detail.style) child.setAttribute('style', `${child.getAttribute('style') || ''}${event.detail.style}`)
     }
     this.removeCellEventListener = event => {
       if (event.detail && (event.detail.cell || event.detail.position)) {
         const cell = this.section.childNodes[event.detail.cell
-            ? Array.from(this.section.childNodes).findIndex(child => child === event.detail.cell)
-            : Number(event.detail.position)
-          ]
+          ? Array.from(this.section.childNodes).findIndex(child => child === event.detail.cell)
+          : Number(event.detail.position)
+        ]
         if (cell) {
           cell.remove()
         } else {

@@ -7,6 +7,8 @@
  *  All rights reserved
  ***************************************************************/
 
+/* global CustomEvent */
+
 export default class MasterInteract {
   constructor (ProxifyHook, interact, body = null, minWidth = 10, minHeight = 100, namespace = '') {
     this.__ = ProxifyHook
@@ -31,7 +33,7 @@ export default class MasterInteract {
       this.interact(selector, { context: grid.__raw__ })
         .draggable({
           autoScroll: true,
-          inertia: true, // Inertia allows drag and resize actions to continue after the user releases the pointer at a fast enough speed. http://interactjs.io/docs/inertia/
+          inertia: true // Inertia allows drag and resize actions to continue after the user releases the pointer at a fast enough speed. http://interactjs.io/docs/inertia/
         })
         .styleCursor(true)
         .on('dragstart', (this.events.dragstart = event => {
@@ -44,7 +46,6 @@ export default class MasterInteract {
               cell.classList.add('dragging')
               dragPoint = this.calcPoint(cell, cell, [event.pageX, event.pageY], 'floor')
               overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
-              console.log('changed', `${this.namespace}dragstart`);
               cell.dispatchEvent(new CustomEvent(`${this.namespace}dragstart`, {
                 detail: {
                   element,
@@ -203,7 +204,7 @@ export default class MasterInteract {
         .off('resizemove', this.events.resizemove)
         .off('resizeend', this.events.resizeend)
         .off('doubletap', this.events.doubletap)
-      })
+    })
     this.removeBodyScrollFix()
   }
 
