@@ -74,8 +74,8 @@ export default class InteractiveGrid extends Shadow() {
   renderCSS () {
     this.css = /* css */`
       :host > section {
-        background: GhostWhite;
-        border: 1px solid gray;
+        background: var(--section-background, GhostWhite);
+        border: var(--section-border, 1px solid gray);
         display: grid;
         grid-auto-columns: 1fr; /* don't use this.minWidth, since the width is automatic to max 100vw by grids default behavior */
         grid-auto-flow: dense;
@@ -85,23 +85,39 @@ export default class InteractiveGrid extends Shadow() {
         width: 100%;
       }
       :host > section > * {
-        background-color: rgba(166, 211, 225, .4);
-        box-shadow: -3px -3px rgba(9, 9, 246, .3) inset;
+        background: var(--section-child-background, rgba(166, 211, 225, .4));
+        box-shadow: var(--section-child-box-shadow, -3px -3px rgba(9, 9, 246, .3) inset);
         box-sizing: border-box;
         touch-action: none;
         z-index: ${this.defaultZIndex};
       }
       :host > section > *.dragged {
-        background-color: rgba(218, 248, 218, .4);
+        background: var(--section-child-background-dragged, rgba(218, 248, 218, .4));
       }
       :host > section > *.resized {
-        background-color: rgba(241, 213, 213, .4);
+        background: var(--section-child-background-resized, rgba(241, 213, 213, .4));
       }
       :host > section > *.resized.dragged {
-        background-color: rgba(242, 248, 218, .4);
+        background: var(--section-child-background-resized-dragged, rgba(242, 248, 218, .4));
       }
       :host > section > * * {
         pointer-events: none;
+      }
+      /* not is-interactive */
+      :host(:not([is-interactive])) > section {
+        background: transparent;
+        border: 0;
+        grid-gap: var(--section-grid-gap, unset);
+        overflow: auto;
+      }
+      :host(:not([is-interactive])) > section > *, :host(:not([is-interactive])) > section > *.dragged, :host(:not([is-interactive])) > section > *.resized, :host(:not([is-interactive])) > section > *.resized.dragged {
+        background: transparent;
+        box-shadow: none;
+        touch-action: auto;
+        z-index: auto;
+      }
+      :host(:not([is-interactive])) > section > * * {
+        pointer-events: auto;
       }
     `
   }
