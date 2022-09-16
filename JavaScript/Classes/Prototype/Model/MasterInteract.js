@@ -120,7 +120,7 @@ export default class MasterInteract {
         .off('draggableend')
         .off('resizestart')
         .off('resizemove')
-        .off('resizeend')  
+        .off('resizeend')
         .off('doubletap')
     })
     this.removeBodyScrollFix()

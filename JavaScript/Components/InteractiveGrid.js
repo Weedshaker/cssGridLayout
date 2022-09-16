@@ -119,6 +119,12 @@ export default class InteractiveGrid extends Shadow() {
     this.html = this.section
   }
 
+  /**
+   * load and initialize all needed dependencies and serve it through interactResolve to interactPromise
+   * the function unhooks itself { once: true }
+   *
+   * @return {void}
+   */
   initInteract () {
     this.loadDependencies().then(([Interact, ProxifyHook, Chain, Proxify, interact]) => this.interactResolve(new Interact(new ProxifyHook(Chain(Proxify())).get(), interact, undefined, this.minWidth, this.minHeight)))
     this.initInteract = () => {}
@@ -132,7 +138,7 @@ export default class InteractiveGrid extends Shadow() {
   loadDependencies () {
     return this.dependenciesPromise || (this.dependenciesPromise = Promise.all(
       [
-        '../Classes/Model/Interact.js', 
+        '../Classes/Model/Interact.js',
         '../Weedshaker/ProxifyJS/JavaScript/Classes/Helper/ProxifyHook.js',
         '../Weedshaker/ProxifyJS/JavaScript/Classes/Traps/Misc/Chain.js',
         '../Weedshaker/ProxifyJS/JavaScript/Classes/Handler/Proxify.js',
@@ -149,13 +155,23 @@ export default class InteractiveGrid extends Shadow() {
     ))
   }
 
+  /**
+   * starts interaction
+   *
+   * @return {void}
+   */
   start () {
     if (this._isInteractive) return
     this._isInteractive = true
-    this.initInteract() // first start initialize, the function unhooks itself { once: true }
+    this.initInteract()
     this.interactPromise.then(Interact => Interact.start(this.section))
   }
 
+  /**
+   * stops interaction
+   *
+   * @return {void}
+   */
   stop () {
     if (!this._isInteractive) return
     this.interactPromise.then(Interact => Interact.stop(this.section))
