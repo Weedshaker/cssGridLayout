@@ -14,6 +14,8 @@ export default class MasterInteract {
     this.body = body
     this.minWidth = minWidth
     this.minHeight = minHeight
+
+    this.events = {}
   }
 
   start (element, body = this.body, minWidth = this.minWidth, minHeight = this.minHeight, __ = this.__) {
@@ -29,38 +31,41 @@ export default class MasterInteract {
         .draggable({
           autoScroll: true,
           inertia: true, // Inertia allows drag and resize actions to continue after the user releases the pointer at a fast enough speed. http://interactjs.io/docs/inertia/
-          onstart: (event) => {
-            __(event.target)
-              .$getStyle((cell, prop, style) => {
-                style
-                  .$getTransform((style, prop, trans) => (transform = trans || 'none'))
-                  .$setTransform('none')
-                dragPoint = this.calcPoint(cell, cell, [event.pageX, event.pageY], 'floor')
-                overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
-              })
-          },
-          onmove: (event) => {
-            __(event.target)
-              .$getStyle((cell, prop, style) => {
-                const [str, x, y] = style.transform.match(/.*?\(([-0-9]*)[^0-9-]*([-0-9]*)/) || ['', 0, 0] // eslint-disable-line
-                style.$setTransform(`translate(${Math.round(Number(x) + event.dx)}px, ${Math.round(Number(y) + event.dy)}px)`)
-              })
-          },
-          onend: (event) => {
-            __(event.target)
-              .$getStyle((cell, prop, style) => {
-                // reset translate, otherwise cell coordinates will be off
-                style.$setTransform('none')
-                const dropPoint = this.calcPoint(grid, cell, [event.pageX, event.pageY], 'ceil')
-                style
-                  .$setGridRowStart(dropPoint[1] - dragPoint[1] > 0 ? dropPoint[1] - dragPoint[1] : 1)
-                  .$setGridColumnStart(dropPoint[0] - dragPoint[0] > 0 ? dropPoint[0] - dragPoint[0] : 1)
-                  .$setTransform(transform)
-                cell.classList.add('dragged')
-                overlayGrid.remove()
-              })
-          }
         })
+        .styleCursor(true)
+        .on('dragstart', (this.events.dragstart = event => {
+          __(event.target)
+            .$getStyle((cell, prop, style) => {
+              style
+                .$getTransform((style, prop, trans) => (transform = trans || 'none'))
+                .$setTransform('none')
+              cell.classList.add('moving')
+              dragPoint = this.calcPoint(cell, cell, [event.pageX, event.pageY], 'floor')
+              overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
+            })
+        }))
+        .on('dragmove', (this.events.dragmove = event => {
+          __(event.target)
+            .$getStyle((cell, prop, style) => {
+              const [str, x, y] = style.transform.match(/.*?\(([-0-9]*)[^0-9-]*([-0-9]*)/) || ['', 0, 0] // eslint-disable-line
+              style.$setTransform(`translate(${Math.round(Number(x) + event.dx)}px, ${Math.round(Number(y) + event.dy)}px)`)
+            })
+        }))
+        .on('dragend', (this.events.dragend = event => {
+          __(event.target)
+            .$getStyle((cell, prop, style) => {
+              // reset translate, otherwise cell coordinates will be off
+              style.$setTransform('none')
+              const dropPoint = this.calcPoint(grid, cell, [event.pageX, event.pageY], 'ceil')
+              style
+                .$setGridRowStart(dropPoint[1] - dragPoint[1] > 0 ? dropPoint[1] - dragPoint[1] : 1)
+                .$setGridColumnStart(dropPoint[0] - dragPoint[0] > 0 ? dropPoint[0] - dragPoint[0] : 1)
+                .$setTransform(transform)
+              cell.classList.remove('moving')
+              cell.classList.add('dragged')
+              overlayGrid.remove()
+            })
+        }))
         .resizable({
           autoScroll: true,
           edges: { left: false, right: true, bottom: true, top: false },
@@ -69,25 +74,26 @@ export default class MasterInteract {
             min: { width: minWidth, height: minHeight }
           }
         })
-        .on('resizestart', (event) => {
+        .on('resizestart', (this.events.resizestart = event => {
           __(event.target)
             .$getStyle((cell, prop, style) => {
               style
                 .$getTransform((style, prop, trans) => (transform = trans))
                 .$setTransform('none')
                 .$setTransformOrigin('top left')
+              cell.classList.add('resizing')
               initRect = this.getBoundingClientRectAbsolute(cell)
               overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
             })
-        })
-        .on('resizemove', (event) => {
+        }))
+        .on('resizemove', (this.events.resizemove = event => {
           __(event.target)
             .$getStyle((cell, prop, style) => {
               // @ts-ignore
               style.$setTransform(`scale(${parseFloat(event.rect.width / initRect.width).toFixed(3)}, ${parseFloat(event.rect.height / initRect.height).toFixed(3)})`)
             })
-        })
-        .on('resizeend', (event) => {
+        }))
+        .on('resizeend', (this.events.resizeend = event => {
           __(event.target)
             .$getStyle((cell, prop, style) => {
               const cellRect = this.getBoundingClientRectAbsolute(cell)
@@ -96,18 +102,19 @@ export default class MasterInteract {
                 .$setGridRowEnd(`span ${Math.round(cellRect.height / singleCellRect.height)}`)
                 .$setGridColumnEnd(`span ${Math.round(cellRect.width / singleCellRect.width)}`)
                 .$setTransform(transform)
+              cell.classList.remove('resizing')
               cell.classList.add('resized')
               overlayGrid.remove()
             })
-        })
-        .on('doubletap', (event) => {
+        }))
+        .on('doubletap', (this.events.doubletap = event => {
           // zIndex swapping
           __(event.target)
             .$getStyle((cell, prop, style) => {
               const zIndex = Number(style.$getZIndex())
               style.$setZIndex(!zIndex || zIndex <= 1 ? 100 - 1 : zIndex - 1)
             })
-        })
+        }))
     })
   }
 
@@ -115,14 +122,15 @@ export default class MasterInteract {
     __(element).$func(grid => {
       const selector = Array.from(grid.children).reduce((acc, child) => child.tagName && !acc.includes(child.tagName) ? acc.concat([child.tagName]) : acc, []).join(',') || '*'
       this.interact(selector, { context: grid.__raw__ })
-        .off('draggablestart')
-        .off('draggablemove')
-        .off('draggableend')
-        .off('resizestart')
-        .off('resizemove')
-        .off('resizeend')
-        .off('doubletap')
-    })
+        .styleCursor(false)
+        .off('dragstart', this.events.dragstart)
+        .off('dragmove', this.events.dragmove)
+        .off('dragend', this.events.dragend)
+        .off('resizestart', this.events.resizestart)
+        .off('resizemove', this.events.resizemove)
+        .off('resizeend', this.events.resizeend)
+        .off('doubletap', this.events.doubletap)
+      })
     this.removeBodyScrollFix()
   }
 

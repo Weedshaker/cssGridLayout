@@ -89,16 +89,21 @@ export default class InteractiveGrid extends Shadow() {
         box-shadow: var(--section-child-box-shadow, -3px -3px rgba(9, 9, 246, .3) inset);
         box-sizing: border-box;
         touch-action: none;
+        transition: var(--section-child-transition, background 6s ease-out);
         z-index: ${this.defaultZIndex};
       }
       :host > section > *.dragged {
-        background: var(--section-child-background-dragged, rgba(218, 248, 218, .4));
+        background: var(--section-child-background-dragged, rgba(242, 248, 218, .4));
       }
       :host > section > *.resized {
-        background: var(--section-child-background-resized, rgba(241, 213, 213, .4));
+        background: var(--section-child-background-resized, rgba(220, 240, 200, .4));
       }
       :host > section > *.resized.dragged {
-        background: var(--section-child-background-resized-dragged, rgba(242, 248, 218, .4));
+        background: var(--section-child-background-resized-dragged, rgba(218, 248, 218, .4));
+      }
+      :host > section > *.moving, :host > section > *.resizing {
+        background: var(--section-child-background-resized-dragged, rgba(249, 163, 195, .4)) !important;
+        transition: none;
       }
       :host > section > * * {
         pointer-events: none;
