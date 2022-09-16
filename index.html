@@ -7,10 +7,22 @@
   <title>cssGridLayoutJS</title>
 </head>
 <body>
-  <script>
-    const particularCell = document.createElement('p')
-    particularCell.textContent = 'particular cell'
-  </script>
+  <!-- add set/remove interactive -->
+  <button onclick="
+    this.dispatchEvent(new CustomEvent('setInteractive', {
+      bubbles: true,
+      cancelable: true,
+      composed: true
+    }))
+  ">set Interactive</button>
+  <button onclick="
+    this.dispatchEvent(new CustomEvent('removeInteractive', {
+      bubbles: true,
+      cancelable: true,
+      composed: true
+    }))
+  ">remove Interactive</button>
+  <br><br>
   <!-- add cells -->
   <button onclick="
     this.dispatchEvent(new CustomEvent('addCell', {
@@ -30,6 +42,10 @@
       composed: true
     }))
   ">add cell at row 8 & col 9</button>
+  <script>
+    const particularCell = document.createElement('p')
+    particularCell.textContent = 'particular cell'
+  </script>
   <button onclick="
     this.dispatchEvent(new CustomEvent('addCell', {
       detail: {
@@ -58,6 +74,34 @@
       composed: true
     }))
   ">remove particular cell</button>
+  <button onclick="
+    this.dispatchEvent(new CustomEvent('removeCell', {
+      detail: {
+        position: self.prompt('which cell pick a number from 1 to ...')
+      },
+      bubbles: true,
+      cancelable: true,
+      composed: true
+    }))
+  ">remove cell by pos</button>
+  <!-- get html cells -->
+  <script>
+    const htmlResolve = () => {
+      let resolveFunc
+      new Promise(resolve => (resolveFunc = resolve)).then(html => console.log('grid html: ', html))
+      return resolveFunc
+    }
+  </script>
+  <button onclick="
+    this.dispatchEvent(new CustomEvent('getInnerHTML', {
+      detail: {
+        resolve: htmlResolve()
+      },
+      bubbles: true,
+      cancelable: true,
+      composed: true
+    }))
+  ">print html to console</button>
   <hr>
   <o-interactive-grid is-interactive min-height=50>
     <div style="grid-row-start: 1; grid-column-start: 1;"></div>
