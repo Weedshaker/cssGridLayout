@@ -25,17 +25,39 @@ export default class InteractiveGrid extends Shadow() {
 
     this.interactPromise = new Promise(resolve => (this.interactResolve = resolve))
     this.wasInteractive = this.hasAttribute('is-interactive')
+
+    this.addCellEventListener = event => {
+      let child
+      this.section.appendChild((child = event.detail && event.detail.cell || document.createElement('div')))
+      if (event.detail && event.detail.style) child.setAttribute('style', `${child.getAttribute('style') || ''}${event.detail.style}`)
+    }
+    this.removeCellEventListener = event => {
+      if (event.detail && event.detail.cell) {
+        const cell = this.section.childNodes[Array.from(this.section.childNodes).findIndex(child => child === event.detail.cell)]
+        if (cell) {
+          cell.remove()
+        } else {
+          console.warn('InteractiveGrid could not remove your cell due to missing child in section: ', event.detail.cell, this.section)
+        }
+      } else {
+        this.section.childNodes[this.section.childNodes.length - 1].remove()
+      }
+    }
   }
 
   connectedCallback () {
     if (this.shouldComponentRenderCSS()) this.renderCSS()
     if (this.shouldComponentRenderHTML()) this.renderHTML()
     if (this.wasInteractive && !this.hasAttribute('is-interactive')) this.setAttribute('is-interactive', '')
+    document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}addCell`, this.addCellEventListener)
+    document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}removeCell`, this.removeCellEventListener)
   }
 
   disconnectedCallback () {
     this.wasInteractive = this.hasAttribute('is-interactive')
     if (this.wasInteractive) this.removeAttribute('is-interactive')
+    document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}addCell`, this.addCellEventListener)
+    document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}removeCell`, this.removeEventListener)
   }
 
   attributeChangedCallback (name, oldValue, newValue) {
@@ -88,8 +110,11 @@ export default class InteractiveGrid extends Shadow() {
         background: var(--section-child-background, rgba(166, 211, 225, .4));
         box-shadow: var(--section-child-box-shadow, -3px -3px rgba(9, 9, 246, .3) inset);
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
         touch-action: none;
         transition: var(--section-child-transition, background 6s ease-in);
+        user-select: none;
         z-index: ${this.defaultZIndex};
       }
       :host > section > *.dragged {
@@ -135,7 +160,7 @@ export default class InteractiveGrid extends Shadow() {
   renderHTML () {
     this.section = document.createElement('section')
     Array.from(this.root.children).forEach(node => {
-      if (!node.getAttribute('slot')) this.section.appendChild(node)
+      if (!node.getAttribute('slot') && node.tagName !== 'STYLE') this.section.appendChild(node)
     })
     this.html = this.section
   }
