@@ -25,6 +25,14 @@
     import('./JavaScript/Components/InteractiveGrid.js').then(module => {
       if (!customElements.get('o-interactive-grid')) customElements.define('o-interactive-grid', module.default)
     })
+    // log all interactive events out in console
+    document.body.addEventListener('dragstart', event => console.log('dragstart', event.detail))
+    document.body.addEventListener('dragmove', event => console.log('dragmove', event.detail))
+    document.body.addEventListener('dragend', event => console.log('dragend', event.detail))
+    document.body.addEventListener('resizestart', event => console.log('resizestart', event.detail))
+    document.body.addEventListener('resizemove', event => console.log('resizemove', event.detail))
+    document.body.addEventListener('resizeend', event => console.log('dragend', event.detail))
+    document.body.addEventListener('doubletap', event => console.log('doubletap', event.detail))
   </script>
 </body>
 

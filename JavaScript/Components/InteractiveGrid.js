@@ -89,7 +89,7 @@ export default class InteractiveGrid extends Shadow() {
         box-shadow: var(--section-child-box-shadow, -3px -3px rgba(9, 9, 246, .3) inset);
         box-sizing: border-box;
         touch-action: none;
-        transition: var(--section-child-transition, background 6s ease-out);
+        transition: var(--section-child-transition, background 6s ease-in);
         z-index: ${this.defaultZIndex};
       }
       :host > section > *.dragged {
@@ -101,7 +101,7 @@ export default class InteractiveGrid extends Shadow() {
       :host > section > *.resized.dragged {
         background: var(--section-child-background-resized-dragged, rgba(218, 248, 218, .4));
       }
-      :host > section > *.moving, :host > section > *.resizing, :host > section > *.new {
+      :host > section > *.dragging, :host > section > *.resizing, :host > section > *.new {
         background: var(--section-child-background-resized-dragged, rgba(249, 163, 195, .4)) !important;
         transition: none;
       }
@@ -147,7 +147,7 @@ export default class InteractiveGrid extends Shadow() {
    * @return {void}
    */
   initInteract () {
-    this.loadDependencies().then(([Interact, ProxifyHook, Chain, Proxify, interact]) => this.interactResolve(new Interact(new ProxifyHook(Chain(Proxify())).get(), interact, undefined, this.minWidth, this.minHeight)))
+    this.loadDependencies().then(([Interact, ProxifyHook, Chain, Proxify, interact]) => this.interactResolve(new Interact(new ProxifyHook(Chain(Proxify())).get(), interact, undefined, this.minWidth, this.minHeight, this.getAttribute('namespace') || '')))
     this.initInteract = () => {}
   }
 

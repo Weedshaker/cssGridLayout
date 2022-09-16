@@ -8,12 +8,13 @@
  ***************************************************************/
 
 export default class MasterInteract {
-  constructor (ProxifyHook, interact, body = null, minWidth = 10, minHeight = 100) {
+  constructor (ProxifyHook, interact, body = null, minWidth = 10, minHeight = 100, namespace = '') {
     this.__ = ProxifyHook
     this.interact = interact
     this.body = body
     this.minWidth = minWidth
     this.minHeight = minHeight
+    this.namespace = namespace ? `${namespace}-` : namespace
 
     this.events = {}
   }
@@ -40,16 +41,37 @@ export default class MasterInteract {
                 .$getTransform((style, prop, trans) => (transform = trans || 'none'))
                 .$setTransform('none')
               cell.classList.remove('new')
-              cell.classList.add('moving')
+              cell.classList.add('dragging')
               dragPoint = this.calcPoint(cell, cell, [event.pageX, event.pageY], 'floor')
               overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
+              console.log('changed', `${this.namespace}dragstart`);
+              cell.dispatchEvent(new CustomEvent(`${this.namespace}dragstart`, {
+                detail: {
+                  element,
+                  cell: cell.__raw__
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
             })
         }))
         .on('dragmove', (this.events.dragmove = event => {
           __(event.target)
             .$getStyle((cell, prop, style) => {
-              const [str, x, y] = style.transform.match(/.*?\(([-0-9]*)[^0-9-]*([-0-9]*)/) || ['', 0, 0] // eslint-disable-line
-              style.$setTransform(`translate(${Math.round(Number(x) + event.dx)}px, ${Math.round(Number(y) + event.dy)}px)`)
+              let [str, x, y] = style.transform.match(/.*?\(([-0-9]*)[^0-9-]*([-0-9]*)/) || ['', 0, 0] // eslint-disable-line
+              style.$setTransform(`translate(${(x = Math.round(Number(x) + event.dx))}px, ${(y = Math.round(Number(y) + event.dy))}px)`)
+              cell.dispatchEvent(new CustomEvent(`${this.namespace}dragmove`, {
+                detail: {
+                  element,
+                  cell: cell.__raw__,
+                  x,
+                  y
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
             })
         }))
         .on('dragend', (this.events.dragend = event => {
@@ -62,9 +84,18 @@ export default class MasterInteract {
                 .$setGridRowStart(dropPoint[1] - dragPoint[1] > 0 ? dropPoint[1] - dragPoint[1] : 1)
                 .$setGridColumnStart(dropPoint[0] - dragPoint[0] > 0 ? dropPoint[0] - dragPoint[0] : 1)
                 .$setTransform(transform)
-              cell.classList.remove('moving')
+              cell.classList.remove('dragging')
               cell.classList.add('dragged')
               overlayGrid.remove()
+              cell.dispatchEvent(new CustomEvent(`${this.namespace}dragend`, {
+                detail: {
+                  element,
+                  cell: cell.__raw__
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
             })
         }))
         .resizable({
@@ -86,13 +117,34 @@ export default class MasterInteract {
               cell.classList.add('resizing')
               initRect = this.getBoundingClientRectAbsolute(cell)
               overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
+              cell.dispatchEvent(new CustomEvent(`${this.namespace}resizestart`, {
+                detail: {
+                  element,
+                  cell: cell.__raw__
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
             })
         }))
         .on('resizemove', (this.events.resizemove = event => {
           __(event.target)
             .$getStyle((cell, prop, style) => {
+              let x, y
               // @ts-ignore
-              style.$setTransform(`scale(${parseFloat(event.rect.width / initRect.width).toFixed(3)}, ${parseFloat(event.rect.height / initRect.height).toFixed(3)})`)
+              style.$setTransform(`scale(${(x = parseFloat(event.rect.width / initRect.width).toFixed(3))}, ${(y = parseFloat(event.rect.height / initRect.height).toFixed(3))})`)
+              cell.dispatchEvent(new CustomEvent(`${this.namespace}resizemove`, {
+                detail: {
+                  element,
+                  cell: cell.__raw__,
+                  x,
+                  y
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
             })
         }))
         .on('resizeend', (this.events.resizeend = event => {
@@ -107,14 +159,33 @@ export default class MasterInteract {
               cell.classList.remove('resizing')
               cell.classList.add('resized')
               overlayGrid.remove()
+              cell.dispatchEvent(new CustomEvent(`${this.namespace}resizeend`, {
+                detail: {
+                  element,
+                  cell: cell.__raw__
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
             })
         }))
         .on('doubletap', (this.events.doubletap = event => {
           // zIndex swapping
           __(event.target)
             .$getStyle((cell, prop, style) => {
-              const zIndex = Number(style.$getZIndex())
-              style.$setZIndex(!zIndex || zIndex <= 1 ? 100 - 1 : zIndex - 1)
+              let zIndex = Number(style.$getZIndex())
+              style.$setZIndex((zIndex = !zIndex || zIndex <= 1 ? 100 - 1 : zIndex - 1))
+              cell.dispatchEvent(new CustomEvent(`${this.namespace}doubletap`, {
+                detail: {
+                  element,
+                  cell: cell.__raw__,
+                  zIndex
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
             })
         }))
     })
@@ -174,7 +245,7 @@ export default class MasterInteract {
     const cellRect = this.getCellRect(cell)
     const rows = Math.round(gridRect.height / cellRect.height)
     const columns = Math.round(gridRect.width / cellRect.width)
-    const additional = 5
+    const additional = 3
     return body
       .appendChild(__('section'))
       .$getClassList((receiver, prop, classList) => classList.add('overlay'))
