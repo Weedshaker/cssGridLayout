@@ -35,7 +35,7 @@ export default class InteractiveGrid extends Shadow() {
     this.addCellEventListener = event => {
       let child, wasInteractive
       if ((wasInteractive = this._isInteractive)) this.stop()
-      this.section.appendChild((child = event.detail && (event.detail.cell || document.createElement('div'))))
+      this.section.appendChild((child = (event.detail && event.detail.cell) || document.createElement('div')))
       if (wasInteractive) this.start()
       if (event.detail && event.detail.style) child.setAttribute('style', `${child.getAttribute('style') || ''}${event.detail.style}`)
     }
