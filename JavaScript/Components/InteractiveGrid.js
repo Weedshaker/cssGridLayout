@@ -101,7 +101,7 @@ export default class InteractiveGrid extends Shadow() {
       :host > section > *.resized.dragged {
         background: var(--section-child-background-resized-dragged, rgba(218, 248, 218, .4));
       }
-      :host > section > *.moving, :host > section > *.resizing {
+      :host > section > *.moving, :host > section > *.resizing, :host > section > *.new {
         background: var(--section-child-background-resized-dragged, rgba(249, 163, 195, .4)) !important;
         transition: none;
       }

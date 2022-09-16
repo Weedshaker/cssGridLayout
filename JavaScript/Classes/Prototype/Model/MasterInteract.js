@@ -39,6 +39,7 @@ export default class MasterInteract {
               style
                 .$getTransform((style, prop, trans) => (transform = trans || 'none'))
                 .$setTransform('none')
+              cell.classList.remove('new')
               cell.classList.add('moving')
               dragPoint = this.calcPoint(cell, cell, [event.pageX, event.pageY], 'floor')
               overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
@@ -81,6 +82,7 @@ export default class MasterInteract {
                 .$getTransform((style, prop, trans) => (transform = trans))
                 .$setTransform('none')
                 .$setTransformOrigin('top left')
+              cell.classList.remove('new')
               cell.classList.add('resizing')
               initRect = this.getBoundingClientRectAbsolute(cell)
               overlayGrid = this.drawOverlayGrid(__, body, grid, cell)
