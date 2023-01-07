@@ -94,9 +94,26 @@ export default class InteractiveGrid extends Shadow() {
     }
     this.getInnerHTMLEventListener = event => {
       if (event.detail && typeof event.detail.resolve === 'function') {
-        event.detail.resolve(this.section.innerHTML)
+        event.detail.resolve(this.section.innerHTML
+          .replace(/\stransform.*?\:.*?\;/g, '')
+          .replace(/\scursor\:.*?\;/g, '')
+          .replace(/\sclass\=\".*?\"/g, '')
+        )
       } else {
         console.warn('InteractiveGrid expects for the event "getInnerHTML a function on event.detail.resolve', event)
+      }
+    }
+    this.getOuterHTMLEventListener = event => {
+      if (event.detail && typeof event.detail.resolve === 'function') {
+        this.section.setAttribute('style', this.sectionCSS)
+        event.detail.resolve(this.section.outerHTML
+          .replace(/\stransform.*?\:.*?\;/g, '')
+          .replace(/\scursor\:.*?\;/g, '')
+          .replace(/\sclass\=\".*?\"/g, '')
+        )
+        this.section.removeAttribute('style')
+      } else {
+        console.warn('InteractiveGrid expects for the event "getOuterHTML a function on event.detail.resolve', event)
       }
     }
   }
@@ -110,6 +127,7 @@ export default class InteractiveGrid extends Shadow() {
     document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}addCell`, this.addCellEventListener)
     document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}removeCell`, this.removeCellEventListener)
     document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}getInnerHTML`, this.getInnerHTMLEventListener)
+    document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}getOuterHTML`, this.getOuterHTMLEventListener)
   }
 
   disconnectedCallback () {
@@ -120,6 +138,7 @@ export default class InteractiveGrid extends Shadow() {
     document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}addCell`, this.addCellEventListener)
     document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}removeCell`, this.removeEventListener)
     document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}getInnerHTML`, this.getInnerHTMLEventListener)
+    document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}getOuterHTML`, this.getOuterHTMLEventListener)
   }
 
   attributeChangedCallback (name, oldValue, newValue) {
@@ -156,15 +175,18 @@ export default class InteractiveGrid extends Shadow() {
    * @return {void}
    */
   renderCSS () {
-    this.css = /* css */`
-      :host > section {
-        background: var(--section-background, GhostWhite);
-        border: var(--section-border, 1px solid gray);
+    this.sectionCSS = `
         display: grid;
         grid-auto-columns: 1fr; /* don't use this.minWidth, since the width is automatic to max 100vw by grids default behavior */
         grid-auto-flow: dense;
         grid-auto-rows: minmax(${this.minHeight}px, 1fr);
         grid-gap: unset;
+    `
+    this.css = /* css */`
+      :host > section {
+        ${this.sectionCSS}
+        background: var(--section-background, GhostWhite);
+        border: var(--section-border, 1px solid gray);
         overflow: visible;
         width: 100%;
       }
