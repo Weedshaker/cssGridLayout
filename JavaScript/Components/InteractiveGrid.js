@@ -28,20 +28,48 @@ export default class InteractiveGrid extends Shadow() {
 
     this.setInteractiveEventListener = event => {
       if (!this.hasAttribute('is-interactive')) this.setAttribute('is-interactive', '')
+      this.dispatchEvent(new CustomEvent(`${this.namespace}set-interactive`, {
+        detail: {
+          isInteractive: this.hasAttribute('is-interactive'),
+          this: this
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
     }
     this.removeInteractiveEventListener = event => {
       if (this.hasAttribute('is-interactive')) this.removeAttribute('is-interactive', '')
+      this.dispatchEvent(new CustomEvent(`${this.namespace}remove-interactive`, {
+        detail: {
+          isInteractive: this.hasAttribute('is-interactive'),
+          this: this
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
     }
     this.addCellEventListener = event => {
-      let child, wasInteractive
+      let cell, wasInteractive
       if ((wasInteractive = this._isInteractive)) this.stop()
-      this.section.appendChild((child = (event.detail && event.detail.cell) || document.createElement('div')))
+      this.section.appendChild((cell = (event.detail && event.detail.cell) || document.createElement('div')))
       if (wasInteractive) this.start()
-      if (event.detail && event.detail.style) child.setAttribute('style', `${child.getAttribute('style') || ''}${event.detail.style}`)
+      if (event.detail && event.detail.style) cell.setAttribute('style', `${cell.getAttribute('style') || ''}${event.detail.style}`)
+      this.dispatchEvent(new CustomEvent(`${this.namespace}add-cell`, {
+        detail: {
+          cell: cell,
+          this: this
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
     }
     this.removeCellEventListener = event => {
+      let cell
       if (event.detail && (event.detail.cell || event.detail.position)) {
-        const cell = this.section.childNodes[event.detail.cell
+        cell = this.section.childNodes[event.detail.cell
           ? Array.from(this.section.childNodes).findIndex(child => child === event.detail.cell)
           : Number(event.detail.position)
         ]
@@ -51,8 +79,18 @@ export default class InteractiveGrid extends Shadow() {
           console.warn('InteractiveGrid could not remove your cell due to missing child in section: ', event.detail.cell || event.detail.position, this.section)
         }
       } else {
-        this.section.childNodes[this.section.childNodes.length - 1].remove()
+        cell = this.section.childNodes[this.section.childNodes.length - 1]
+        cell.remove()
       }
+      this.dispatchEvent(new CustomEvent(`${this.namespace}remove-cell`, {
+        detail: {
+          cell: cell,
+          this: this
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
     }
     this.getInnerHTMLEventListener = event => {
       if (event.detail && typeof event.detail.resolve === 'function') {

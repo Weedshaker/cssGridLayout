@@ -27,8 +27,7 @@
     })
     document.body.appendChild(button)
     document.body.addEventListener('click', event => {
-      if (checkbox.checked) {
-        console.log('remove', event.composedPath()[0])
+      if (checkbox.checked && event.composedPath().includes(document.body.querySelector('o-interactive-grid'))) {
         document.body.dispatchEvent(new CustomEvent('removeCell', {
           detail: {
             cell: event.composedPath()[0]
@@ -40,6 +39,8 @@
       }
     })
   </script>
+  <br><code>Note: If the drag starts to get inpracise, reload!</code>
+  <hr>
   <!-- div stuff -->
   <details>
     <summary>misc tests</summary>
@@ -115,7 +116,7 @@
       }))
     ">print html to console</button>
     <br>
-    <code>Note: It is still buggy to toggle Interactive</code><br>
+    <code>Note: It is still buggy to toggle Interactive...</code><br>
     <!-- add set/remove interactive -->
     <button onclick="
       this.dispatchEvent(new CustomEvent('setInteractive', {
@@ -133,20 +134,47 @@
     ">remove Interactive</button>
   </details>
   <hr>
-  <o-interactive-grid is-interactive min-height=50>
-    <div style="grid-row-start: 1; grid-column-start: 1;"></div>
-    <div style="grid-row-start: 2; grid-column-start: 2;"></div>
-    <div style="grid-row-start: 3; grid-column-start: 3;"></div>
-    <div style="grid-row-start: 4; grid-column-start: 4;"></div>
-    <div style="grid-row-start: 5; grid-column-start: 5;"></div>
-    <!--<div style="grid-row-start: 6; grid-column-start: 6;"></div>
-    <div style="grid-row-start: 7; grid-column-start: 7;"></div>
-    <div style="grid-row-start: 8; grid-column-start: 8;"></div>
-    <div style="grid-row-start: 9; grid-column-start: 9;"></div>
-    <div style="grid-row-start: 10; grid-column-start: 10;"></div>
-    <div style="grid-row-start: 11; grid-column-start: 11;"></div>
-    <div style="grid-row-start: 12; grid-column-start: 12;"></div>-->
-  </o-interactive-grid>
+  <!-- save/load stuff -->
+  <script>
+    const save = event => {
+      (new Promise(resolve => document.body.dispatchEvent(new CustomEvent('getInnerHTML', {
+        detail: {
+          resolve
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      })))).then(html => localStorage.setItem('html', html))
+    }
+    document.body.addEventListener('dragend', save)
+    document.body.addEventListener('resizeend', save)
+    document.body.addEventListener('doubletap', save)
+    document.body.addEventListener('add-cell', save)
+    document.body.addEventListener('remove-cell', save)
+    const div = document.createElement('div')
+    div.innerHTML = /* html */`
+      <o-interactive-grid is-interactive min-height=50>
+        ${localStorage.getItem('html') && self.confirm('Do you wanna load the last state?')
+          ? localStorage.getItem('html')
+          : /* html */`
+            <div style="grid-row-start: 1; grid-column-start: 1;"></div>
+            <div style="grid-row-start: 2; grid-column-start: 2;"></div>
+            <div style="grid-row-start: 3; grid-column-start: 3;"></div>
+            <div style="grid-row-start: 4; grid-column-start: 4;"></div>
+            <div style="grid-row-start: 5; grid-column-start: 5;"></div>
+            <!--<div style="grid-row-start: 6; grid-column-start: 6;"></div>
+            <div style="grid-row-start: 7; grid-column-start: 7;"></div>
+            <div style="grid-row-start: 8; grid-column-start: 8;"></div>
+            <div style="grid-row-start: 9; grid-column-start: 9;"></div>
+            <div style="grid-row-start: 10; grid-column-start: 10;"></div>
+            <div style="grid-row-start: 11; grid-column-start: 11;"></div>
+            <div style="grid-row-start: 12; grid-column-start: 12;"></div>-->
+          `
+        }
+      </o-interactive-grid>
+    `
+    document.body.appendChild(div.children[0])
+  </script>
   <script rel="modulepreload" type="module">
     import('./JavaScript/Components/InteractiveGrid.js').then(module => {
       if (!customElements.get('o-interactive-grid')) customElements.define('o-interactive-grid', module.default)
@@ -157,8 +185,10 @@
     document.body.addEventListener('dragend', event => console.log('dragend', event.detail))
     document.body.addEventListener('resizestart', event => console.log('resizestart', event.detail))
     document.body.addEventListener('resizemove', event => console.log('resizemove', event.detail))
-    document.body.addEventListener('resizeend', event => console.log('dragend', event.detail))
+    document.body.addEventListener('resizeend', event => console.log('resizeend', event.detail))
     document.body.addEventListener('doubletap', event => console.log('doubletap', event.detail))
+    document.body.addEventListener('add-cell', event => console.log('add-cell', event.detail))
+    document.body.addEventListener('remove-cell', event => console.log('remove-cell', event.detail))
   </script>
 </body>
 
