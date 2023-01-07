@@ -92,13 +92,13 @@ export default class InteractiveGrid extends Shadow() {
         composed: true
       }))
     }
+    const cleanStyleAttribute = string => string
+      .replace(/\s*transform.*?\:.*?\;\s*/g, '')
+      .replace(/\s*cursor\:.*?\;\s*/g, '')
+      .replace(/\s*class\=\".*?\"\s*/g, '')
     this.getInnerHTMLEventListener = event => {
       if (event.detail && typeof event.detail.resolve === 'function') {
-        event.detail.resolve(this.section.innerHTML
-          .replace(/\stransform.*?\:.*?\;/g, '')
-          .replace(/\scursor\:.*?\;/g, '')
-          .replace(/\sclass\=\".*?\"/g, '')
-        )
+        event.detail.resolve(cleanStyleAttribute(this.section.innerHTML))
       } else {
         console.warn('InteractiveGrid expects for the event "getInnerHTML a function on event.detail.resolve', event)
       }
@@ -106,11 +106,7 @@ export default class InteractiveGrid extends Shadow() {
     this.getOuterHTMLEventListener = event => {
       if (event.detail && typeof event.detail.resolve === 'function') {
         this.section.setAttribute('style', this.sectionCSS)
-        event.detail.resolve(this.section.outerHTML
-          .replace(/\stransform.*?\:.*?\;/g, '')
-          .replace(/\scursor\:.*?\;/g, '')
-          .replace(/\sclass\=\".*?\"/g, '')
-        )
+        event.detail.resolve(cleanStyleAttribute(this.section.outerHTML))
         this.section.removeAttribute('style')
       } else {
         console.warn('InteractiveGrid expects for the event "getOuterHTML a function on event.detail.resolve', event)
