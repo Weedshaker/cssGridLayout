@@ -4,7 +4,8 @@
   "description": "Drag & Drop CSS Grid Layout Creator.",
   "main": "index.html",
   "scripts": {
-    "fix": "standard --fix"
+    "fix": "standard --fix",
+    "serve": "live-server --port=4200 --host=localhost"
   },
   "keywords": [
     "Css",
@@ -16,6 +17,7 @@
   "author": "Silvan Strübi",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
+    "live-server": "*",
     "standard": "*"
   },
   "standard": {

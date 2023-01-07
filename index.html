@@ -7,22 +7,6 @@
   <title>cssGridLayoutJS</title>
 </head>
 <body>
-  <!-- add set/remove interactive -->
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('setInteractive', {
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">set Interactive</button>
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('removeInteractive', {
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">remove Interactive</button>
-  <br><br>
   <!-- add cells -->
   <button onclick="
     this.dispatchEvent(new CustomEvent('addCell', {
@@ -31,77 +15,123 @@
       composed: true
     }))
   ">add cell</button>
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('addCell', {
-      detail: {
-        cell: document.createElement('span'),
-        style: 'grid-area: 8 / 9 / span 1 / span 3; transform-origin: left top;'
-      },
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">add cell at row 8 & col 9</button>
-  <script>
-    const particularCell = document.createElement('p')
-    particularCell.textContent = 'particular cell'
-  </script>
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('addCell', {
-      detail: {
-        cell: particularCell
-      },
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">add particular cell</button>
   <!-- remove cells -->
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('removeCell', {
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">remove cell</button>
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('removeCell', {
-      detail: {
-        cell: particularCell
-      },
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">remove particular cell</button>
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('removeCell', {
-      detail: {
-        position: self.prompt('which cell pick a number from 1 to ...')
-      },
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">remove cell by pos</button>
-  <!-- get html cells -->
   <script>
-    const htmlResolve = () => {
-      let resolveFunc
-      new Promise(resolve => (resolveFunc = resolve)).then(html => console.log('grid html: ', html))
-      return resolveFunc
-    }
+    const button = document.createElement('button')
+    button.textContent = 'delete cell on click'
+    const checkbox = document.createElement('input')
+    checkbox.setAttribute('type', 'checkbox')
+    button.appendChild(checkbox)
+    button.addEventListener('click', event => {
+      if (event.composedPath()[0] === button) checkbox.click()
+    })
+    document.body.appendChild(button)
+    document.body.addEventListener('click', event => {
+      if (checkbox.checked) {
+        console.log('remove', event.composedPath()[0])
+        document.body.dispatchEvent(new CustomEvent('removeCell', {
+          detail: {
+            cell: event.composedPath()[0]
+          },
+          bubbles: true,
+          cancelable: true,
+          composed: true
+        }))
+      }
+    })
   </script>
-  <button onclick="
-    this.dispatchEvent(new CustomEvent('getInnerHTML', {
-      detail: {
-        resolve: htmlResolve()
-      },
-      bubbles: true,
-      cancelable: true,
-      composed: true
-    }))
-  ">print html to console</button>
+  <!-- div stuff -->
+  <details>
+    <summary>misc tests</summary>
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('addCell', {
+        detail: {
+          cell: document.createElement('span'),
+          style: 'grid-area: 8 / 9 / span 1 / span 3; transform-origin: left top;'
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">add cell at row 8 & col 9</button>
+    <script>
+      const particularCell = document.createElement('p')
+      particularCell.textContent = 'particular cell'
+    </script>
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('addCell', {
+        detail: {
+          cell: particularCell
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">add particular cell</button>
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('removeCell', {
+        detail: {
+          cell: particularCell
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">remove particular cell</button>
+    <!-- remove cells -->
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('removeCell', {
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">remove last cell</button>
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('removeCell', {
+        detail: {
+          position: self.prompt('which cell pick a number from 1 to ...')
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">remove cell at pos</button>
+    <!-- get html cells -->
+    <script>
+      const htmlResolve = () => {
+        let resolveFunc
+        new Promise(resolve => (resolveFunc = resolve)).then(html => console.log('grid html: ', html))
+        return resolveFunc
+      }
+    </script>
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('getInnerHTML', {
+        detail: {
+          resolve: htmlResolve()
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">print html to console</button>
+    <br>
+    <code>Note: It is still buggy to toggle Interactive</code><br>
+    <!-- add set/remove interactive -->
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('setInteractive', {
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">set Interactive</button>
+    <button onclick="
+      this.dispatchEvent(new CustomEvent('removeInteractive', {
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      }))
+    ">remove Interactive</button>
+  </details>
   <hr>
   <o-interactive-grid is-interactive min-height=50>
     <div style="grid-row-start: 1; grid-column-start: 1;"></div>
@@ -109,13 +139,13 @@
     <div style="grid-row-start: 3; grid-column-start: 3;"></div>
     <div style="grid-row-start: 4; grid-column-start: 4;"></div>
     <div style="grid-row-start: 5; grid-column-start: 5;"></div>
-    <div style="grid-row-start: 6; grid-column-start: 6;"></div>
+    <!--<div style="grid-row-start: 6; grid-column-start: 6;"></div>
     <div style="grid-row-start: 7; grid-column-start: 7;"></div>
     <div style="grid-row-start: 8; grid-column-start: 8;"></div>
     <div style="grid-row-start: 9; grid-column-start: 9;"></div>
     <div style="grid-row-start: 10; grid-column-start: 10;"></div>
     <div style="grid-row-start: 11; grid-column-start: 11;"></div>
-    <div style="grid-row-start: 12; grid-column-start: 12;"></div>
+    <div style="grid-row-start: 12; grid-column-start: 12;"></div>-->
   </o-interactive-grid>
   <script rel="modulepreload" type="module">
     import('./JavaScript/Components/InteractiveGrid.js').then(module => {
