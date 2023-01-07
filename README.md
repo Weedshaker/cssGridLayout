@@ -6,3 +6,5 @@
 - [x] Dependencies per submodule not jsdelivery
 - [x] wrap code into grid drag web-component
 - [x] grid drag wc shall listen to events: add element, remove element, output css + html, emit drag, click and resize events
+
+©Weedshaker; Not to be used commercially except my explicit agreement.
