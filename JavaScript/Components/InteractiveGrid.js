@@ -93,9 +93,11 @@ export default class InteractiveGrid extends Shadow() {
       }))
     }
     const cleanStyleAttribute = string => string
-      .replace(/\s*transform.*?\:.*?\;\s*/g, '')
-      .replace(/\s*cursor\:.*?\;\s*/g, '')
-      .replace(/\s*class\=\".*?\"\s*/g, '')
+      .replace(/transform.*?\:.*?\;\s*/g, '')
+      .replace(/cursor\:.*?\;\s*/g, '')
+      .replace(/class\=\".*?\"\s*/g, '')
+      .replace(/\s\s/g, ' ')
+      .replace(/\;\s\"/g, ';"')
     this.getInnerHTMLEventListener = event => {
       if (event.detail && typeof event.detail.resolve === 'function') {
         event.detail.resolve(cleanStyleAttribute(this.section.innerHTML))
@@ -112,6 +114,22 @@ export default class InteractiveGrid extends Shadow() {
         console.warn('InteractiveGrid expects for the event "getOuterHTML a function on event.detail.resolve', event)
       }
     }
+    this.getHTMLCSSEventListener = event => {
+      if (event.detail && typeof event.detail.resolve === 'function') {
+        this.getOuterHTMLEventListener({detail: {resolve: outerHTML => {
+          const div = document.createElement('div')
+          div.innerHTML = outerHTML
+          const section = div.children[0]
+          const css = /* css */`<style>\n#grid {${section.getAttribute('style') || ''}}${Array.from(section.children).reduce((accumulator, currentValue, i) => /* css */`${accumulator}\n#grid > *:nth-child(${i + 1}) {${currentValue.getAttribute('style') || ''}}`, '')}\n</style>`
+          section.removeAttribute('style')
+          section.setAttribute('id', 'grid')
+          Array.from(section.children).forEach(child => child.removeAttribute('style'))
+          event.detail.resolve(css + '\n' + section.outerHTML)}}
+        })
+      } else {
+        console.warn('InteractiveGrid expects for the event "getHTMLCSS a function on event.detail.resolve', event)
+      }
+    }
   }
 
   connectedCallback () {
@@ -124,6 +142,7 @@ export default class InteractiveGrid extends Shadow() {
     document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}removeCell`, this.removeCellEventListener)
     document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}getInnerHTML`, this.getInnerHTMLEventListener)
     document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}getOuterHTML`, this.getOuterHTMLEventListener)
+    document.body.addEventListener(`${this.namespace ? `${this.namespace}-` : ''}getHTMLCSS`, this.getHTMLCSSEventListener)
   }
 
   disconnectedCallback () {
@@ -135,6 +154,7 @@ export default class InteractiveGrid extends Shadow() {
     document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}removeCell`, this.removeEventListener)
     document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}getInnerHTML`, this.getInnerHTMLEventListener)
     document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}getOuterHTML`, this.getOuterHTMLEventListener)
+    document.body.removeEventListener(`${this.namespace ? `${this.namespace}-` : ''}getHTMLCSS`, this.getHTMLCSSEventListener)
   }
 
   attributeChangedCallback (name, oldValue, newValue) {
@@ -171,13 +191,7 @@ export default class InteractiveGrid extends Shadow() {
    * @return {void}
    */
   renderCSS () {
-    this.sectionCSS = `
-        display: grid;
-        grid-auto-columns: 1fr; /* don't use this.minWidth, since the width is automatic to max 100vw by grids default behavior */
-        grid-auto-flow: dense;
-        grid-auto-rows: minmax(${this.minHeight}px, 1fr);
-        grid-gap: unset;
-    `
+    this.sectionCSS = `display: grid; grid-auto-columns: 1fr; grid-auto-flow: dense; grid-auto-rows: minmax(${this.minHeight}px, 1fr); grid-gap: unset;`
     this.css = /* css */`
       :host > section {
         ${this.sectionCSS}

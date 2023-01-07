@@ -7,7 +7,7 @@
   <title>cssGridLayoutJS</title>
 </head>
 <body>
-  <iframe class="gh-button" src="https://ghbtns.com/github-btn.html?user=Weedshaker&amp;repo=cssGridLayout&amp;type=star&amp;count=true&amp;size=large" scrolling="0" width="160px" height="30px" frameborder="0"></iframe>
+  <h1>Grid Creator <iframe class="gh-button" src="https://ghbtns.com/github-btn.html?user=Weedshaker&amp;repo=cssGridLayout&amp;type=star&amp;count=true&amp;size=large" scrolling="0" width="160px" height="30px" frameborder="0"></iframe></h1>
   <hr>
   <!-- add cells -->
   <button onclick="
@@ -48,7 +48,7 @@
     <textarea id="save-html" style="width: 100%; height: fit-content; min-height: min(20vh, 200px);"></textarea>
   </details>
   <details>
-    <summary>html & css</summary>
+    <summary>html with css</summary>
     <textarea id="save-html-css" style="width: 100%; height: fit-content; min-height: min(20vh, 200px);"></textarea>
   </details>
   <hr>
@@ -148,6 +148,7 @@
   <!-- save/load stuff -->
   <script>
     const save = event => {
+      // save
       if (event) (new Promise(resolve => document.body.dispatchEvent(new CustomEvent('getInnerHTML', {
         detail: {
           resolve
@@ -156,6 +157,7 @@
         cancelable: true,
         composed: true
       })))).then(html => localStorage.setItem('html', html));
+      // set html
       (new Promise(resolve => document.body.dispatchEvent(new CustomEvent('getOuterHTML', {
         detail: {
           resolve
@@ -163,10 +165,16 @@
         bubbles: true,
         cancelable: true,
         composed: true
-      })))).then(html => {
-        document.querySelector('#save-html').textContent = html
-        document.querySelector('#save-html-css').textContent = html
-      });
+      })))).then(html => (document.querySelector('#save-html').textContent = html));
+      // set html with css
+      (new Promise(resolve => document.body.dispatchEvent(new CustomEvent('getHTMLCSS', {
+        detail: {
+          resolve
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: true
+      })))).then(html => (document.querySelector('#save-html-css').textContent = html));
     }
     document.body.addEventListener('dragend', save)
     document.body.addEventListener('resizeend', save)
