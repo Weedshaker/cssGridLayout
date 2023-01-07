@@ -7,4 +7,5 @@
 - [x] wrap code into grid drag web-component
 - [x] grid drag wc shall listen to events: add element, remove element, output css + html, emit drag, click and resize events
 
-©Weedshaker; Not to be used commercially except my explicit agreement.
+## Credit
+Created & © by [スィルヴァン aka. Weedshaker](https://github.com/Weedshaker); This code is not to be implemented commercially, except with my explicit agreement.
