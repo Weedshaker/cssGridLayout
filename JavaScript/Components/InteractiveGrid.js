@@ -98,6 +98,7 @@ export default class InteractiveGrid extends Shadow() {
       .replace(/class\=\".*?\"\s*/g, '')
       .replace(/\s\s/g, ' ')
       .replace(/\;\s\"/g, ';"')
+      .replace(/minmax\((.*?)px, 1fr\)\;/, 'minmax($1px, auto);') // the drag drop needs 1fr for the calculation, but the output must have auto, so that content can be filled without changing the height of all other cells
     this.getInnerHTMLEventListener = event => {
       if (event.detail && typeof event.detail.resolve === 'function') {
         event.detail.resolve(cleanStyleAttribute(this.section.innerHTML))
@@ -120,7 +121,7 @@ export default class InteractiveGrid extends Shadow() {
           const div = document.createElement('div')
           div.innerHTML = outerHTML
           const section = div.children[0]
-          const css = /* css */`<style>\n#grid {${section.getAttribute('style') || ''}}${Array.from(section.children).reduce((accumulator, currentValue, i) => /* css */`${accumulator}\n#grid > *:nth-child(${i + 1}) {${currentValue.getAttribute('style') || ''}}`, '')}\n</style>`
+          const css = `<style>\n#grid {${section.getAttribute('style') || ''}}${Array.from(section.children).reduce((accumulator, currentValue, i) => `${accumulator}\n#grid > *:nth-child(${i + 1}) {${currentValue.getAttribute('style') || ''}}`, '')}\n</style>`
           section.removeAttribute('style')
           section.setAttribute('id', 'grid')
           Array.from(section.children).forEach(child => child.removeAttribute('style'))
@@ -191,7 +192,7 @@ export default class InteractiveGrid extends Shadow() {
    * @return {void}
    */
   renderCSS () {
-    this.sectionCSS = `display: grid; grid-auto-columns: 1fr; grid-auto-flow: dense; grid-auto-rows: minmax(${this.minHeight}px, auto); grid-gap: unset;`
+    this.sectionCSS = `display: grid; grid-auto-columns: 1fr; grid-auto-flow: dense; grid-auto-rows: minmax(${this.minHeight}px, 1fr); grid-gap: unset;`
     this.css = /* css */`
       :host > section {
         ${this.sectionCSS}
