@@ -191,7 +191,7 @@ export default class InteractiveGrid extends Shadow() {
    * @return {void}
    */
   renderCSS () {
-    this.sectionCSS = `display: grid; grid-auto-columns: 1fr; grid-auto-flow: dense; grid-auto-rows: minmax(${this.minHeight}px, 1fr); grid-gap: unset;`
+    this.sectionCSS = `display: grid; grid-auto-columns: 1fr; grid-auto-flow: dense; grid-auto-rows: minmax(${this.minHeight}px, auto); grid-gap: unset;`
     this.css = /* css */`
       :host > section {
         ${this.sectionCSS}
